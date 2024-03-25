@@ -1,3 +1,4 @@
+import heapq
 import networkx as nx
 from tabulate import tabulate
 
@@ -53,19 +54,20 @@ for A, B, weight in edges:
 
 
 def dijkstra(start):
-    distances = {vertex: float("infinity") for vertex in G}
-    distances[start] = 0
-    unvisited = list(G)
+    distances = {}
 
-    while unvisited:
-        current_vertex = min(unvisited, key=lambda vertex: distances[vertex])
-        if distances[current_vertex] == float("infinity"):
-            break
-        for neighbor, attr in G[current_vertex].items():
-            distance = distances[current_vertex] + attr["weight"]
-            if distance < distances[neighbor]:
-                distances[neighbor] = distance
-        unvisited.remove(current_vertex)
+    queue = [(start, 0)]
+    distances[start] = 0
+
+    while queue:
+        (node, size) = heapq.heappop(queue)
+
+        for neighbor in G[node]:
+            new_size = size + G[node][neighbor].get("weight", 1)
+            if neighbor not in distances or new_size < distances[neighbor]:
+                distances[neighbor] = new_size
+                heapq.heappush(queue, (neighbor, new_size))
+
     return distances
 
 
